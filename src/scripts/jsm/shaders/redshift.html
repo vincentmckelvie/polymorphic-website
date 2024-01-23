@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<!-- saved from url=(0068)https://ipfs.io/ipfs/QmPHDx432YjCraU1udeEzfTcy7A88y6ZsE41vsauiJ5QMB/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="
+    upgrade-insecure-requests;
+    default-src
+      &#39;none&#39;;
+    frame-src
+      &#39;self&#39;;
+    child-src
+      &#39;self&#39;
+      &#39;unsafe-inline&#39;
+      blob:;
+    script-src
+      &#39;self&#39;
+      &#39;unsafe-inline&#39;
+      &#39;unsafe-eval&#39;
+      blob:;
+    style-src
+      &#39;self&#39;
+      &#39;unsafe-inline&#39;;
+    img-src
+      &#39;self&#39;
+      &#39;unsafe-inline&#39;
+      data:
+      blob:
+      https://services.tzkt.io
+      https://ipfs.infura.io
+      https://*.infura-ipfs.io
+      https://cloudflare-ipfs.com/
+      https://ipfs.io/
+      https://templewallet.com/logo.png
+      https://gateway.pinata.cloud/;
+    font-src
+      &#39;self&#39;
+      data:
+      https://ipfs.infura.io
+      https://*.infura-ipfs.io
+      https://cloudflare-ipfs.com/
+      https://fonts.googleapis.com/
+      https://ipfs.io/
+      https://gateway.pinata.cloud/;
+    connect-src
+      &#39;self&#39;
+      https://better-call.dev
+      https://*.better-call.dev
+      https://*.cryptonomic-infra.tech
+      https://cryptonomic-infra.tech
+      https://*.infura.io
+      https://*.infura-ipfs.io
+      https://infura.io
+      blob:
+      data:
+      ws:
+      wss:
+      bootstrap.libp2p.io
+      preload.ipfs.io
+      https://mainnet.smartpy.io
+      https://mainnet-tezos.giganode.io
+      https://api.etherscan.io
+      https://api.thegraph.com
+      https://*.tzkt.io
+      https://api.hicdex.com
+	  https://hdapi.teztools.io
+      https://api.tzstats.com
+      https://*.wikidata.org
+      https://*.coinmarketcap.com
+      https://api.openweathermap.org
+      https://hicetnunc.xyz
+      https://*.hicetnunc.xyz
+      https://*.hicetnunc.art
+      https://*.teztools.io;
+    manifest-src
+      &#39;self&#39;;
+    base-uri
+      &#39;self&#39;;
+    form-action
+      &#39;none&#39;;
+    media-src
+      &#39;self&#39;
+      &#39;unsafe-inline&#39;
+      data:
+      blob:
+      https://ipfs.infura.io
+      https://*.infura-ipfs.io
+      https://cloudflare-ipfs.com/
+      https://ipfs.io/
+      https://gateway.pinata.cloud/;
+    prefetch-src
+      &#39;self&#39;
+      https://ipfs.infura.io
+      https://*.infura-ipfs.io
+      https://cloudflare-ipfs.com/
+      https://fonts.googleapis.com/
+      https://ipfs.io/
+      https://gateway.pinata.cloud/;
+    worker-src
+      &#39;self&#39;
+      &#39;unsafe-inline&#39;
+      blob:;">
+  
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title></title>
+    <style>
+    html, body {
+      background: #000;
+        height: 100%;
+        margin: 0;
+    }
+    #c {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+    </style>
+  </head>
+  <body>
+    <canvas id="c" style="display: none;"></canvas>
+   
+  
+<script type="text/javascript" src="./redshift_files/gsap.js"></script>
+<script type="module">
+import * as THREE from './build/three.module.js';
+import { EffectComposer } from './scripts/jsm/postprocessing/EffectComposer.js';
+import { ShaderPass } from './scripts/jsm/postprocessing/ShaderPass.js';
+import { RenderPass } from     './scripts/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from'./scripts/jsm/postprocessing/UnrealBloomPass.js';
+
+let renderer, camera, scene, starMesh, camTargX, camTargY, camTargZ = 400, composer, bloomPass, hue = Math.random(),shouldMove=false,suck;
+
+const movers = [];
+const mouse = {
+  x:0,
+  y:0,
+  down:false
+}
+
+init();
+animate();
+
+function init() {
+  const geo = new THREE.SphereGeometry( .5, 1, 1 );
+  const mat = new THREE.MeshBasicMaterial({color:0xffffff })
+  starMesh = new THREE.Mesh(geo,mat);
+  
+  camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 1000 );
+  camera.position.z = 400;
+
+  scene = new THREE.Scene();
+  const near = 1;
+  const far = 400;
+  const color = new THREE.Color().setHSL((hue+.5)%1.0, .5, .01);
+  //scene.fog = new THREE.Fog(color, near, far);
+  scene.fog = new THREE.FogExp2(color, .001);
+  scene.background = new THREE.Color(color);
+  //scene.fog = new THREE.Fog( 0xffffff, 0,400 );
+  
+ 
+  renderer = new THREE.WebGLRenderer( { antialias: true } );
+  renderer.setPixelRatio( window.devicePixelRatio );
+  renderer.setSize( window.innerWidth, window.innerHeight );
+  document.body.appendChild( renderer.domElement );
+
+  const renderScene = new RenderPass( scene, camera );
+ 
+  bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio ), 1.8, .001, 0.1 );
+ 
+  composer = new EffectComposer( renderer );
+  composer.addPass( renderScene );
+  
+  composer.addPass( bloomPass );
+
+  window.addEventListener( 'resize', onWindowResize );
+  document.addEventListener( 'mousemove', onMouseMove );
+  document.addEventListener( 'pointerdown', onPointerDown );
+  document.addEventListener( 'pointerup', onPointerUp );
+  setTimeout(function(){
+    suck = new Sucker();
+    setTimeout(function(){
+        for(let i =0;i<150; i++){
+          movers.push(new Mover());
+        }
+        suck.emitter.killAll();
+        setTimeout(function(){
+            shouldMove= true;
+        }, 1500);
+    },1500)
+  }, 500);
+
+}
+function onMouseMove(e){
+  mouse.x = -1+((e.pageX/window.innerWidth)*2);
+  mouse.y = -1+((e.pageY/window.innerHeight)*2);
+
+}
+function onPointerDown(e){
+  mouse.down = true;
+}
+function onPointerUp(e){
+  mouse.down = false;
+}
+
+function onWindowResize() {
+
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  // bloomPass.uniforms[ 'resolution' ].value = new THREE.Vector2(
+  //   window.innerWidth * window.devicePixelRatio,
+  //   window.innerHeight * window.devicePixelRatio
+  // );
+  renderer.setSize( window.innerWidth, window.innerHeight );
+  composer.setSize( window.innerWidth, window.innerHeight );
+
+}
+
+function animate() {
+
+  requestAnimationFrame( animate );
+  if(shouldMove){
+    camTargZ-=1;
+  }
+  for(let i =0;i<movers.length; i++){
+    movers[i].update();
+  }
+  if(suck){
+    suck.update();
+  }
+  camTargX = mouse.x*40;
+  camTargY  = mouse.y*40;
+  camera.position.x+=(camTargX-camera.position.x)*.05;
+  camera.position.y+=(camTargY-camera.position.y)*.05;
+  camera.position.z+=(camTargZ - camera.position.z)*.04;
+  camera.lookAt(new THREE.Vector3(0, 0, camera.position.z-400))
+  composer.render();
+  //renderer.render( scene, camera );
+
+}
+
+function Splosion(){
+  const geo = new THREE.SphereGeometry( 2, 12, 12 );
+  const mat = new THREE.MeshBasicMaterial({color:0xffffff, transparent:true, opacity:.15 });
+  this.mesh = new THREE.Mesh(geo,mat);
+  this.mesh.scale.set(0,0,0);
+  scene.add(this.mesh);
+  const s = 50;
+  gsap.to(this.mesh.scale,{duration:1.2, x:s,y:s,z:s, ease: "circ.out()", delay:0.1});
+  gsap.to(this.mesh.scale,{duration:.3, x:0,y:0,z:0, ease: "circ.in()", delay:1.3, onComplete:killSplosion});
+
+}
+
+function killSplosion(){
+  suck.killSphere();
+}
+
+
+function Sucker(){
+  //this.startX = -1+Math.random()*2;
+  //this.startY = -1+Math.random()*2;
+  //this.startZ = -1+Math.random()*2;
+ 
+  //this.targ= new THREE.Vector3(this.startX*150, this.startY*100, -200+this.startZ*600)
+  this.parent = new THREE.Object3D();
+  scene.add(this.parent);
+  //this.parent.position.set(this.startX*150, this.startY*100, -200+this.startZ*600)
+  this.parent.position.set(0,0,0);
+ 
+  this.inc = 0;//random(-100,100);
+  this.speed = Math.random(0.3,.6)*3;
+  this.rad = 0;
+  this.rndRadMult = Math.random(1,1.5)*.8;
+  this.emitter = new ParticleEmitter();
+  this.total = 0;
+  this.rndRot = -.2+Math.random()*.1;
+  this.rndScl = -.2+Math.random()*.1;
+  this.hue = hue + (-.1+Math.random()*.2);
+  this.rad = 500;
+ 
+  // if(Math.random()>.95){
+  //   this.hue = (hue +.5)%1.0 + (-.1+Math.random()*.2);
+  // }
+  this.hue = this.hue%1.0;
+  this.colorMult = Math.random()*.1;
+  this.shouldEmit = true;
+  this.splode = new Splosion();
+   this.killedSplosion = false;
+
+  //gsap.to(this.parent.position,{duration:1.2, x:this.targ.x,y:this.targ.y,z:this.targ.z, ease: "circ.out()", delay:Math.random()*.5});
+  this.update = function(){
+    this.inc+=this.speed;
+    if(this.rad>0){
+      this.rad-=5;
+    }else{
+      this.shouldEmit = false;
+    }
+    //this.parent.scale.set()
+    this.emitter.update();
+    if(this.shouldEmit){
+      for(let i = 0; i<10; i++){
+      //this.total++;
+          this.start = new THREE.Vector3(-1+Math.random()*2,-1+Math.random()*2,-1+Math.random()*2);
+          this.start.normalize();
+          this.start.multiplyScalar( this.rad );
+          this.emitter.emit(this.start.x,this.start.y, this.start.z, 1.2, this.parent, this.hue, 0)
+      }
+    }
+    this.parent.rotation.set(0,0,this.inc*.001); 
+    
+  }
+  this.killSphere = function(){
+        if(!this.killedSplosion){
+          scene.remove(this.splode.mesh);
+          this.splode.mesh.material.dispose();
+          this.splode.mesh.geometry.dispose();
+          this.killedSplosion = true;
+        }
+  }
+
+}
+
+function Mover(){
+  this.startX = -2+Math.random()*4;
+  this.startY = -2+Math.random()*4;
+  this.startZ = .0+Math.random()*1;
+  this.targ= new THREE.Vector3(this.startX*150, this.startY*100, -200+this.startZ*600)
+  this.parent = new THREE.Object3D();
+  scene.add(this.parent);
+  //this.parent.position.set(this.startX*150, this.startY*100, -200+this.startZ*600)
+  this.parent.position.set(0,0,0);
+  this.x = 0;
+  this.y = 0;
+  this.inc = 0;//random(-100,100);
+  this.speed = Math.random(0.3,.6)*3;
+  this.rad = 0;
+  this.rndRadMult = Math.random(1,1.5)*.8;
+  this.emitter = new ParticleEmitter();
+  this.total = 0;
+  this.rndRot = -.2+Math.random()*.1;
+  this.rndScl = -.2+Math.random()*.1;
+  this.hue = hue + (-.1+Math.random()*.2);
+ 
+ 
+  // if(Math.random()>.95){
+  //   this.hue = (hue +.5)%1.0 + (-.1+Math.random()*.2);
+  // }
+  this.hue = this.hue%1.0;
+  this.colorMult = Math.random()*.1;
+  gsap.to(this.parent.position,{duration:1.2, x:this.targ.x,y:this.targ.y,z:this.targ.z, ease: "circ.out()", delay:Math.random()*.5});
+  this.update = function(){
+    
+    
+    this.inc += this.speed;
+    if(this.total<150){  
+      if( this.inc % Math.PI*2 <= this.speed/(Math.PI*2)){
+        this.rad += this.speed*this.rndRadMult;
+      }
+      this.total++;
+    }
+    this.x = Math.sin(this.inc)*this.rad;
+    this.y = Math.cos(this.inc)*this.rad;
+    if(this.parent.position.z>camera.position.z){
+      this.parent.position.z=camera.position.z-700;
+      this.emitter.killAll();
+      this.inc = 0;
+      this.rad = 0;
+      this.total = 0;
+    }
+    
+
+    //this.parent.scale.set()
+    this.emitter.update();
+    //this.total++;
+    this.emitter.emit(this.x,this.y,0,1,this.parent, this.hue, this.colorMult)
+    this.parent.rotation.set(0,0,this.inc*this.rndRot*.08); 
+    
+    
+  }
+
+}
+
+function Star(X,Y,Z,SCL,PARENT,HUE,COLORMULT){
+  this.mesh = starMesh.clone();
+  if(SCL>1){
+      this.mesh.scale.set(SCL,SCL,SCL*20);
+  }else{
+    this.mesh.scale.set(1,1,1);
+  }
+  const mat = new THREE.MeshBasicMaterial();
+  this.mesh.material = mat;
+  PARENT.add(this.mesh);
+  this.parent = PARENT;
+  this.x = X;
+  this.y = Y;
+  this.startX = X;
+  this.startY = Y;
+  this.mesh.position.set(this.x,this.y,0);
+  this.killed = false;
+  this.hue = HUE;
+  this.colorMult = COLORMULT;
+  this.update = function(){
+    this.mesh.lookAt(new THREE.Vector3(0,0,0))
+    this.x *= .96;
+    this.y *= .96;
+    const a = new THREE.Vector2( this.startX, this.startY );
+    const b = new THREE.Vector2( this.x, this.y);
+    const d = a.distanceTo( b );
+    const sat = d*this.colorMult;
+
+    this.mesh.material.color.setHSL(this.hue, sat, .5)
+    this.mesh.position.set(this.x,this.y,0);
+  }
+  this.killSelf = function(){
+    if(!this.killed){
+        this.parent.remove(this.mesh);
+        this.mesh.material.dispose();
+        this.mesh.geometry.dispose();
+        this.killed = true;
+    }
+  }
+
+}
+
+function ParticleEmitter(){
+    
+  this.arrFull = false;
+  this.index = 0;
+  this.arr=[];
+  this.max = 80;
+   
+  this.update = function(){
+    for(var i = 0; i < this.arr.length; i++){
+      this.arr[i].update(); 
+    }
+  }
+
+  this.emit = function(X,Y,Z,SCL,PARENT,HUE,COLORMULT){
+        
+        if(this.arrFull){
+            this.arr[this.index].killSelf();  
+        }
+        
+       
+        //this.arr[this.index] = new Particle(SCENE, POS, ROT, SCL, RNDPOS, RNDROT, RNDSCL, VELPOS, VELROT, VELSCL);
+        this.arr[this.index] = new Star(X,Y,Z,SCL,PARENT,HUE,COLORMULT);
+        this.index++;
+
+        if(this.index == this.max){
+            this.index=0;
+            this.arrFull = true;  
+        }
+  }
+    
+    this.killAll = function(){
+      for(var i = 0; i < this.arr.length; i++){
+        this.arr[i].killSelf(); 
+      }
+      this.index=0;
+      this.arrFull = false  
+    }
+}
+</script>
+
+<canvas data-engine="three.js r136" width="2880" height="1516" style="display: block; width: 1440px; height: 758px;"></canvas></body></html>

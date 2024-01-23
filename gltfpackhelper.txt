@@ -1,0 +1,4 @@
+gltfpack -i gltfs/mother.glb -o src/extras/mother.glb
+gltfpack -i gltfs/everything-human-12for-glb.glb -o src/extras/everything-human-12for-glb-2.glb
+gltfpack -i gltfs/gradient.glb -o src/extras/gradient-3.glb
+
