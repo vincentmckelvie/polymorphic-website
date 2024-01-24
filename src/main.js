@@ -39,7 +39,7 @@ function init() {
   rawPoint = new THREE.Vector3();
   point = new THREE.Vector3();
   camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 1000 );
-  camera.position.z = 40;
+  camera.position.z = 28;
 
   scene = new THREE.Scene();
   const near = 1;
@@ -88,11 +88,11 @@ function init() {
 
   controls = new OrbitControls( camera, renderer.domElement );
   //controls.autoRotate = true;
+  controls.enableZoom = false;
   //controls.autoRotateSpeed = 2.0; // 3
   //controls.listenToKeyEvents( window ); // optional
 
   window.addEventListener( 'resize', onWindowResize );
-
   
   const light = new THREE.AmbientLight( 0xffffff ); // soft white light
   scene.add( light );
