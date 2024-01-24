@@ -46,11 +46,11 @@ function init() {
   const far = 400;
   const color = new THREE.Color().setHSL(0, 0, 1);
   //scene.fog = new THREE.Fog(color, near, far);
-  scene.fog = new THREE.FogExp2(color, .001);
-  scene.background = new THREE.Color(color);
+  //scene.fog = new THREE.FogExp2(color, .001);
+  //scene.background = new THREE.Color(color);
   //scene.fog = new THREE.Fog( 0xffffff, 0,400 );
   
-  renderer = new THREE.WebGLRenderer( { antialias: true } );
+  renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true  } );
   renderer.setPixelRatio( window.devicePixelRatio );
   renderer.setSize( window.innerWidth, window.innerHeight );
   renderer.shadowMap.enabled = true;
